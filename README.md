@@ -50,11 +50,21 @@ Conexões principais
 Componente	Conexão ESP32
 Sensor (VCC)	3.3V
 Sensor (GND)	GND
-Sensor (OUT)	GPIO
-Buzzer (+)	GPIO
+Sensor (OUT)	GPIO 33
+Buzzer (+)	GPIO 25
 Buzzer (-)	GND
+LED Vermelho (+) GPIO 26
+LED Vermelho (-) resistor 220Ω GND 
+LED Verde (+) GPIO 27
+LED Verde (-) resistor 220Ω GND
+Botão 1 (+) GPIO 14
+Botão 1 (-) GND
+Botão 2 (+) GPIO 12 
+Botão 2 (-) GND
+Botão 3 (+) GPIO 13
+Botão 3 (-) GND
 
-Os pinos GPIO podem variar dependendo da versão do código.
+Os pinos GPIO são os mesmos em todas as versões dos códigos apresentados.
 
 📡 Diagrama de Comunicação
 
@@ -67,44 +77,50 @@ Sensor → ESP32 → Alarme
 
 O projeto possui diferentes versões do código que representam evoluções do sistema.
 
-/ALARME_beta_1.0
-/ALARME_beta_1.1
-/ALARME_beta_2.0
-/ALARME_beta_2.0.1
-/ALARME_beta_2.1
-Versões
+/ALARME_1.0
+/ALARME_1.1
+/ALARME_2.0
+/ALARME_2.0.1
+/ALARME_2.1
 
-ALARME_beta_1.0
+Funções de cada versão
 
-Primeira implementação do sistema
 
-Leitura básica do sensor
+1.0
+-comandos físicos de arme e desarme
+-sinal sonoro
+-sinal visual
 
-Acionamento do alarme local
+1.1
+-comandos físicos de arme e desarme
+-sinal sonoro
+-sinal visual
+-melhorias de bugs
 
-ALARME_beta_1.1
+2.0 
+-mensagem em caso de disparo
+-comandos físicos de arme e desarme
+-sinal sonoro
+-sinal visual
 
-Melhor organização do código
+2.0.1
+-envia mensagem de disparo
+-envia mensagem de reestabelecimento
+-comandos físicos de arme e desarme
+-sinal sonoro
+-sinal visual
+-melhorias de bugs
 
-Ajustes na lógica de detecção
-
-ALARME_beta_2.0
-
-Integração com Wi-Fi
-
-Preparação para envio de notificações
-
-ALARME_beta_2.0.1
-
-Melhorias no envio de notificações
-
-ALARME_beta2.1
-
-Versão mais atual
-
-Envio de alertas via Telegram
-
-Melhor tratamento de eventos e notificações
+2.1
+-comandos remotos
+-comandos físicos de arme e desarme
+-sinal sonoro
+-sinal visual
+-envia mensagem de disparos
+-envia mensagem de reestabelecimento
+-envia mensagem de status (quando armado e desarmado)
+-comando de ajuda (/help)
+-comando de status do alarme (/status)
 
 🚀 Como Reproduzir o Projeto
 
@@ -120,6 +136,8 @@ senha da rede
 
 token do bot do Telegram
 
+id do seu chat do Telegram
+
 Fazer upload do código para o ESP32.
 
 Testar o sistema gerando movimentação no sensor.
@@ -134,4 +152,4 @@ Wi-Fi
 
 Telegram Bot API
 
-C/C++
+C++
