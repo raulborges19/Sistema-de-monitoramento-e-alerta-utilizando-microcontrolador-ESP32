@@ -47,22 +47,24 @@ Jumpers
 Fonte de alimentação USB
 
 Conexões principais
+
 Componente	Conexão ESP32
-Sensor (VCC)	3.3V
-Sensor (GND)	GND
-Sensor (OUT)	GPIO 33
-Buzzer (+)	GPIO 25
-Buzzer (-)	GND
-LED Vermelho (+) GPIO 26
-LED Vermelho (-) resistor 220Ω GND 
-LED Verde (+) GPIO 27
-LED Verde (-) resistor 220Ω GND
-Botão 1 (+) GPIO 14
-Botão 1 (-) GND
-Botão 2 (+) GPIO 12 
-Botão 2 (-) GND
-Botão 3 (+) GPIO 13
-Botão 3 (-) GND
+
+-Sensor (VCC)	3.3V
+-Sensor (GND)	GND
+-Sensor (OUT)	GPIO 33
+-Buzzer (+)	GPIO 25
+-Buzzer (-)	GND
+-LED Vermelho (+) GPIO 26
+-LED Vermelho (-) resistor 220Ω GND 
+-LED Verde (+) GPIO 27
+-LED Verde (-) resistor 220Ω GND
+-Botão 1 (+) GPIO 14
+-Botão 1 (-) GND
+-Botão 2 (+) GPIO 12 
+-Botão 2 (-) GND
+-Botão 3 (+) GPIO 13
+-Botão 3 (-) GND
 
 Os pinos GPIO são os mesmos em todas as versões dos códigos apresentados.
 
