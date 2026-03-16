@@ -81,11 +81,11 @@ flowchart LR
 
 O projeto possui diferentes versões do código representando a evolução do sistema:
 
-/ALARME_1.0
-/ALARME_1.1
-/ALARME_2.0
-/ALARME_2.0.1
-/ALARME_2.1
+- /ALARME_1.0
+- /ALARME_1.1
+- /ALARME_2.0
+- /ALARME_2.0.1
+- /ALARME_2.1
 
 ---
 
