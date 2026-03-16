@@ -1,87 +1,73 @@
-🔔 Sistema de Monitoramento e Alerta com ESP32
+# 🔔 Sistema de Monitoramento e Alerta com ESP32
 
-Este projeto implementa um sistema de monitoramento e alerta utilizando o microcontrolador ESP32. O sistema é capaz de detectar movimentação no ambiente e executar ações automáticas como acionar um alarme sonoro e enviar notificações em tempo real via Telegram.
+## 📌 Descrição
 
-A comunicação com o usuário ocorre através da conexão Wi-Fi do ESP32, permitindo monitoramento remoto do sistema.
+Este projeto implementa um **sistema de monitoramento e alerta utilizando o microcontrolador ESP32**.  
+O sistema detecta movimentação através de um sensor conectado ao microcontrolador e executa ações automáticas quando um evento é identificado.
 
-📌 Descrição do Projeto
+Ao detectar movimento, o ESP32 pode:
 
-O sistema utiliza um sensor de movimento conectado ao ESP32 para monitorar continuamente o ambiente.
+- 🔊 Acionar um **alarme sonoro**
+- 📩 Enviar uma **notificação via Telegram**
+- 📊 Registrar ou processar o evento conforme a lógica do código
 
-Quando um evento é detectado, o microcontrolador processa o sinal recebido e executa as ações programadas, que podem incluir:
+A comunicação com o usuário ocorre através da **conexão Wi-Fi do ESP32**, permitindo o envio de alertas **em tempo real**.
 
-🔊 Acionamento de um buzzer (alarme sonoro)
+---
 
-📩 Envio de notificação via Telegram
+# ⚙️ Funcionamento do Sistema
 
-💡 Indicação visual através de LEDs
+1. O sensor monitora continuamente o ambiente.  
+2. Ao detectar movimentação, envia um **sinal digital** para o ESP32.  
+3. O ESP32 interpreta o evento conforme a lógica programada.  
+4. O sistema executa as ações configuradas:
 
-📡 Comunicação remota via Wi-Fi
+- 🔔 acionamento do alarme  
+- 📲 envio de mensagem via Telegram  
 
-Esse projeto foi desenvolvido de forma evolutiva, com diferentes versões de código que adicionam funcionalidades progressivamente.
+---
 
-⚙️ Funcionamento do Sistema
+# 🧩 Estrutura Física (Montagem)
 
-O sensor de movimento monitora continuamente o ambiente.
+O circuito foi montado em **protoboard** utilizando os seguintes componentes.
 
-Ao detectar movimentação, envia um sinal digital para o ESP32.
+## Componentes
 
-O ESP32 interpreta o evento conforme a lógica implementada no código.
+- ESP32  
+- Sensor de movimento  
+- Buzzer (alarme)  
+- Protoboard  
+- Jumpers  
+- Fonte de alimentação USB  
 
-O sistema executa automaticamente as ações programadas:
+---
 
-Acionamento do alarme sonoro
+# 🔌 Conexões do Circuito
 
-Indicação visual por LEDs
+| Componente | Conexão ESP32 |
+|-------------|--------------|
+| Sensor (VCC) | 3.3V |
+| Sensor (GND) | GND |
+| Sensor (OUT) | GPIO 33 |
+| Buzzer (+) | GPIO 25 |
+| Buzzer (-) | GND |
+| LED Vermelho (+) | GPIO 26 |
+| LED Vermelho (-) | Resistor 220Ω → GND |
+| LED Verde (+) | GPIO 27 |
+| LED Verde (-) | Resistor 220Ω → GND |
+| Botão 1 (+) | GPIO 14 |
+| Botão 1 (-) | GND |
+| Botão 2 (+) | GPIO 12 |
+| Botão 2 (-) | GND |
+| Botão 3 (+) | GPIO 13 |
+| Botão 3 (-) | GND |
 
-Envio de alerta via Telegram
+⚠️ Os **pinos GPIO permanecem os mesmos em todas as versões dos códigos**.
 
-🧩 Estrutura Física (Montagem)
+---
 
-O circuito foi montado em protoboard utilizando os seguintes componentes.
+# 📡 Diagrama de Comunicação
 
-Componentes Utilizados
-
-ESP32
-
-Sensor de movimento (PIR)
-
-Buzzer (alarme sonoro)
-
-LEDs (vermelho e verde)
-
-Botões de controle
-
-Resistores 220Ω
-
-Protoboard
-
-Jumpers
-
-Fonte de alimentação USB
-
-🔌 Conexões com o ESP32
-Componente	Conexão ESP32
-Sensor VCC	3.3V
-Sensor GND	GND
-Sensor OUT	GPIO 33
-Buzzer (+)	GPIO 25
-Buzzer (-)	GND
-LED Vermelho (+)	GPIO 26
-LED Vermelho (-)	Resistor 220Ω → GND
-LED Verde (+)	GPIO 27
-LED Verde (-)	Resistor 220Ω → GND
-Botão 1 (+)	GPIO 14
-Botão 1 (-)	GND
-Botão 2 (+)	GPIO 12
-Botão 2 (-)	GND
-Botão 3 (+)	GPIO 13
-Botão 3 (-)	GND
-
-📌 Observação:
-Os pinos GPIO permanecem os mesmos em todas as versões do código.
-
-📡 Diagrama de Comunicação
 Sensor → ESP32 → Alarme
               ↓
            Wi-Fi
@@ -96,99 +82,84 @@ O projeto possui diferentes versões do código representando a evolução do si
 /ALARME_2.0
 /ALARME_2.0.1
 /ALARME_2.1
-🔄 Evolução das Versões
-🔹 Versão 1.0
 
-Comandos físicos de armar e desarmar
+---
 
-Sinal sonoro
+# 🔧 Funções de Cada Versão
 
-Sinal visual
+## 🔹 Versão 1.0
+- comandos físicos de **arme e desarme**
+- **sinal sonoro**
+- **sinal visual**
 
-🔹 Versão 1.1
+---
 
-Comandos físicos de armar e desarmar
+## 🔹 Versão 1.1
+- comandos físicos de **arme e desarme**
+- **sinal sonoro**
+- **sinal visual**
+- **correção de bugs**
 
-Sinal sonoro
+---
 
-Sinal visual
+## 🔹 Versão 2.0
+- envio de **mensagem em caso de disparo**
+- comandos físicos de **arme e desarme**
+- **sinal sonoro**
+- **sinal visual**
 
-Correção de bugs
+---
 
-🔹 Versão 2.0
+## 🔹 Versão 2.0.1
+- envia **mensagem de disparo**
+- envia **mensagem de reestabelecimento**
+- comandos físicos de **arme e desarme**
+- **sinal sonoro**
+- **sinal visual**
+- melhorias de **bugs**
 
-Envio de mensagem em caso de disparo
+---
 
-Comandos físicos de armar e desarmar
+## 🔹 Versão 2.1 (Atual)
+- **comandos remotos via Telegram**
+- comandos físicos de **arme e desarme**
+- **sinal sonoro**
+- **sinal visual**
+- envia **mensagem de disparo**
+- envia **mensagem de reestabelecimento**
+- envia **mensagem de status**
+- comando **/help**
+- comando **/status**
 
-Sinal sonoro
+---
 
-Sinal visual
+# 🚀 Como Reproduzir o Projeto
 
-🔹 Versão 2.0.1
+1️⃣ Monte o circuito na **protoboard** conforme descrito.
 
-Mensagem de disparo
+2️⃣ Abra o código na **Arduino IDE**.
 
-Mensagem de restabelecimento
+3️⃣ Configure no código:
 
-Comandos físicos de armar e desarmar
+- SSID da rede Wi-Fi  
+- senha da rede  
+- token do bot do Telegram  
+- ID do chat do Telegram  
 
-Sinal sonoro
+4️⃣ Faça o **upload do código para o ESP32**.
 
-Sinal visual
+5️⃣ Teste o sistema gerando movimentação no sensor.
 
-Correção de bugs
+---
 
-🔹 Versão 2.1 (Atual)
+# 📚 Tecnologias Utilizadas
 
-Comandos remotos via Telegram
+- ESP32  
+- Arduino IDE  
+- Wi-Fi  
+- Telegram Bot API  
+- C++
 
-Comandos físicos de armar e desarmar
-
-Sinal sonoro
-
-Sinal visual
-
-Mensagem de disparo
-
-Mensagem de restabelecimento
-
-Mensagem de status
-
-Comando /help
-
-Comando /status
-
-🚀 Como Reproduzir o Projeto
-
-Monte o circuito na protoboard conforme as conexões descritas.
-
-Abra o código na Arduino IDE.
-
-Configure no código:
-
-SSID da rede Wi-Fi
-
-Senha da rede
-
-Token do bot do Telegram
-
-ID do chat do Telegram
-
-Faça o upload do código para o ESP32.
-
-Teste o sistema gerando movimentação no sensor.
-
-🛠 Tecnologias Utilizadas
-
-ESP32
-
-Arduino IDE
-
-Wi-Fi
-
-Telegram Bot API
-
-C++
+---
 
 💡 Este projeto demonstra como integrar IoT, sensores e comunicação remota, permitindo criar um sistema simples de monitoramento e alerta em tempo real utilizando o ESP32.
