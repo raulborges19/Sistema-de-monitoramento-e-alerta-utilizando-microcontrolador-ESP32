@@ -68,11 +68,15 @@ O circuito foi montado em **protoboard** utilizando os seguintes componentes.
 
 # 📡 Diagrama de Comunicação
 
-Sensor → ESP32 → Alarme
-              ↓
-           Wi-Fi
-              ↓
-       Notificação Telegram
+```mermaid
+flowchart LR
+    A[Sensor] --> B[ESP32]
+    B --> C[Alarme Local]
+    B --> D[Wi-Fi]
+    D --> E[Bot Telegram]
+    E --> F[Notificação no Celular]
+```
+
 💻 Estrutura dos Códigos
 
 O projeto possui diferentes versões do código representando a evolução do sistema:
