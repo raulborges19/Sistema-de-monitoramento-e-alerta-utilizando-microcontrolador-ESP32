@@ -9,24 +9,37 @@
 #define B3 13
 
 // ====== CONFIG ======
+// Tempo de saída após armar o sistema: permite que a pessoa saia antes do alarme começar a vigiar
 const unsigned long TEMPO_SAIDA_MS = 10000;   // 10s para sair
+
+// Tempo máximo entre pressões de botões antes de zerar a sequência digitada
 const unsigned long TIMEOUT_TECLAS_MS = 3000; // zera sequência se demorar
 
 // ====== ESTADOS ======
+// Máquina de estados do sistema
 enum Estado { DESARMADO, SAIDA, ARMADO, ALARME };
 Estado estado = DESARMADO;
 
 // ====== SEQUÊNCIA DOS BOTÕES ======
+// Armazena a sequência pressionada
 int seq[3];
+
+// Índice atual da sequência
 int idx = 0;
+
+// Momento da última tecla pressionada
 unsigned long ultimoBotaoMs = 0;
 
 // ====== TIMERS ======
+// Momento em que começou a contagem de saída
 unsigned long inicioSaidaMs = 0;
+
+// Controle de piscar o LED durante a saída
 unsigned long ultimoPiscaMs = 0;
 bool pisca = false;
 
 // ====== SIRENE ======
+// Variáveis para controlar o padrão sonoro da sirene
 unsigned long sireneUltimoMs = 0;
 unsigned long sireneInicioCicloMs = 0;
 bool buzzerLigado = false;
@@ -36,6 +49,7 @@ void atualizarSirene() {
   unsigned long agora = millis();
 
   // Inicia ciclo se necessário
+  // Se ainda não começou um ciclo da sirene, inicia agora
   if (sireneInicioCicloMs == 0) {
     sireneInicioCicloMs = agora;
     sireneUltimoMs = agora;
@@ -44,9 +58,11 @@ void atualizarSirene() {
     return;
   }
 
+  // Tempo decorrido dentro do ciclo atual da sirene
   unsigned long t = agora - sireneInicioCicloMs;
 
   // janela total do ciclo: 1600ms
+  // Quando chega no fim do ciclo, reinicia
   if (t >= 1600) {
     sireneInicioCicloMs = agora;
     t = 0;
@@ -57,6 +73,7 @@ void atualizarSirene() {
       (t < 300) ||              // 0-300 ON
       (t >= 500 && t < 800);    // 500-800 ON
 
+  // Só muda o buzzer se o estado desejado for diferente do atual
   if (deveLigar != buzzerLigado) {
     buzzerLigado = deveLigar;
     digitalWrite(BUZZER, buzzerLigado ? HIGH : LOW);
@@ -64,21 +81,25 @@ void atualizarSirene() {
 }
 
 void buzzerOff() {
+  // Reseta o ciclo da sirene e garante o buzzer desligado
   sireneInicioCicloMs = 0;
   buzzerLigado = false;
   digitalWrite(BUZZER, LOW);
 }
 
 void setEstado(Estado novo) {
+  // Atualiza o estado geral do sistema
   estado = novo;
 
   if (estado == DESARMADO) {
+    // Sistema desarmado: LED verde aceso, vermelho apagado, buzzer desligado
     digitalWrite(LED_DESARMADO, HIGH);
     digitalWrite(LED_ARMADO, LOW);
     buzzerOff();
   }
 
   if (estado == SAIDA) {
+    // Estado de saída: usuário acabou de armar e tem 10s para sair
     digitalWrite(LED_DESARMADO, LOW);
     // LED vermelho vai piscar durante a saída
     inicioSaidaMs = millis();
@@ -89,12 +110,14 @@ void setEstado(Estado novo) {
   }
 
   if (estado == ARMADO) {
+    // Sistema armado: LED vermelho fixo
     digitalWrite(LED_DESARMADO, LOW);
     digitalWrite(LED_ARMADO, HIGH); // vermelho fixo
     buzzerOff();
   }
 
   if (estado == ALARME) {
+    // Estado de alarme: mantém vermelho aceso
     digitalWrite(LED_DESARMADO, LOW);
     digitalWrite(LED_ARMADO, HIGH); // mantém vermelho
     // sirene começa pelo atualizarSirene()
@@ -102,6 +125,7 @@ void setEstado(Estado novo) {
 }
 
 void resetSequencia() {
+  // Zera a sequência digitada
   idx = 0;
   ultimoBotaoMs = 0;
 }
@@ -110,10 +134,12 @@ void registrarBotao(int b) {
   unsigned long agora = millis();
 
   // timeout entre teclas
+  // Se demorou demais entre uma tecla e outra, descarta a sequência anterior
   if (ultimoBotaoMs != 0 && (agora - ultimoBotaoMs) > TIMEOUT_TECLAS_MS) {
     resetSequencia();
   }
 
+  // Registra o botão pressionado
   seq[idx++] = b;
   ultimoBotaoMs = agora;
 
@@ -127,17 +153,20 @@ void registrarBotao(int b) {
     if (seq[0]==3 && seq[1]==2 && seq[2]==1) {
       setEstado(DESARMADO);
     }
+    // Após verificar, limpa a sequência
     resetSequencia();
   }
 }
 
 void lerBotoes() {
+  // Leitura dos botões com debounce simples via delay
   if (digitalRead(B1) == LOW) { registrarBotao(1); delay(200); }
   if (digitalRead(B2) == LOW) { registrarBotao(2); delay(200); }
   if (digitalRead(B3) == LOW) { registrarBotao(3); delay(200); }
 }
 
 void setup() {
+  // Configuração dos pinos
   pinMode(PIR, INPUT);
 
   pinMode(LED_ARMADO, OUTPUT);
@@ -149,8 +178,10 @@ void setup() {
   pinMode(B2, INPUT_PULLUP);
   pinMode(B3, INPUT_PULLUP);
 
+  // Inicializa a serial
   Serial.begin(115200);
 
+  // Inicia o sistema desarmado
   setEstado(DESARMADO);
 
   // Dica: PIR pode levar alguns segundos para estabilizar
@@ -158,6 +189,7 @@ void setup() {
 }
 
 void loop() {
+  // Sempre lê os botões
   lerBotoes();
 
   unsigned long agora = millis();
@@ -180,6 +212,7 @@ void loop() {
 
   // ====== ESTADO ARMADO ======
   if (estado == ARMADO) {
+    // Se detectar movimento, entra no estado de alarme
     if (digitalRead(PIR) == HIGH) {
       setEstado(ALARME);
     }
@@ -187,6 +220,7 @@ void loop() {
 
   // ====== ESTADO ALARME ======
   if (estado == ALARME) {
+    // Atualiza o padrão sonoro da sirene continuamente
     atualizarSirene();
     // desarmar é sempre 3-2-1 (já tratado em lerBotoes)
   }

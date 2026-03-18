@@ -1,6 +1,6 @@
-#include <WiFi.h>
-#include <WiFiClientSecure.h>
-#include <UniversalTelegramBot.h>
+#include <WiFi.h>                  // Biblioteca para conexão Wi-Fi no ESP32
+#include <WiFiClientSecure.h>      // Cliente seguro HTTPS
+#include <UniversalTelegramBot.h>  // Biblioteca para interação com o bot do Telegram
 
 // ====== Wi-Fi / Telegram (preencha no seu PC) ======
 const char* ssid = ""; //seu Wifi
@@ -9,6 +9,7 @@ const char* password = ""; //senha do seu Wifi
 #define BOT_TOKEN "" // token do seu bot no telegram
 #define CHAT_ID   "" //id do seu chat do telegram
 
+// Cria o cliente HTTPS e o objeto do bot Telegram
 WiFiClientSecure client;
 UniversalTelegramBot bot(BOT_TOKEN, client);
 
@@ -23,35 +24,52 @@ UniversalTelegramBot bot(BOT_TOKEN, client);
 #define B3 13
 
 // ====== CONFIG ======
+// Tempo de saída ao armar o sistema
 const unsigned long TEMPO_SAIDA_MS        = 10000; // 10s
+
+// Tempo máximo entre pressões de botões
 const unsigned long TIMEOUT_TECLAS_MS     = 3000;  // 3s
+
+// Intervalo entre mensagens repetidas de alerta no Telegram
 const unsigned long ALERTA_COOLDOWN_MS    = 60000; // 60s (repetição opcional)
+
+// Intervalo mínimo entre tentativas de reconexão Wi-Fi
 const unsigned long WIFI_RETRY_MS         = 20000; // tenta reconectar a cada 20s
+
+// Tempo máximo de cada tentativa de conexão Wi-Fi
 const unsigned long WIFI_TIMEOUT_MS       = 12000; // tempo máximo tentando por tentativa
 
 // ====== ESTADOS DO ALARME ======
+// Máquina de estados do sistema
 enum Estado { DESARMADO, SAIDA, ARMADO, ALARME };
 Estado estado = DESARMADO;
 
 // ====== SEQUÊNCIA ======
+// Armazena os 3 botões pressionados
 int seq[3];
 int idx = 0;
 unsigned long ultimoBotaoMs = 0;
 
 // ====== SAÍDA (pisca) ======
+// Variáveis de tempo para controlar o LED piscando no estado SAIDA
 unsigned long inicioSaidaMs = 0;
 unsigned long ultimoPiscaMs = 0;
 bool pisca = false;
 
 // ====== SIRENE ======
+// Controle do padrão sonoro da sirene
 unsigned long sireneInicioCicloMs = 0;
 bool buzzerLigado = false;
 
 // ====== TELEGRAM ======
+// Indica se já foi enviado alerta no disparo atual
 bool alertaEnviadoNoDisparo = false;
+
+// Guarda o instante do último alerta enviado
 unsigned long ultimoAlertaMs = 0;
 
 // ====== WIFI NÃO BLOQUEANTE ======
+// Controla tentativas de conexão sem travar o loop principal
 bool wifiTentando = false;
 unsigned long wifiInicioTentativaMs = 0;
 unsigned long wifiUltimaTentativaMs = 0;
@@ -59,9 +77,9 @@ unsigned long wifiUltimaTentativaMs = 0;
 void iniciarWiFiSemTravar() {
   // só inicia nova tentativa se passou o intervalo
   unsigned long agora = millis();
-  if (wifiTentando) return;
-  if (WiFi.status() == WL_CONNECTED) return;
-  if (agora - wifiUltimaTentativaMs < WIFI_RETRY_MS) return;
+  if (wifiTentando) return;                 // Já está tentando conectar
+  if (WiFi.status() == WL_CONNECTED) return; // Já está conectado
+  if (agora - wifiUltimaTentativaMs < WIFI_RETRY_MS) return; // Ainda não passou o tempo de nova tentativa
 
   wifiUltimaTentativaMs = agora;
   wifiTentando = true;
@@ -75,6 +93,7 @@ void iniciarWiFiSemTravar() {
   WiFi.disconnect(true, true);
   delay(50);
 
+  // Reinicia a interface Wi-Fi em modo estação
   WiFi.mode(WIFI_STA);
   WiFi.setSleep(false);
   WiFi.begin(ssid, password);
@@ -112,11 +131,14 @@ void atualizarSirene() {
   unsigned long agora = millis();
   if (sireneInicioCicloMs == 0) sireneInicioCicloMs = agora;
 
+  // Tempo dentro do ciclo atual da sirene
   unsigned long t = agora - sireneInicioCicloMs;
   if (t >= 1600) { sireneInicioCicloMs = agora; t = 0; }
 
+  // Define o padrão ligado/desligado
   bool deveLigar = (t < 300) || (t >= 500 && t < 800);
 
+  // Só altera o buzzer se necessário
   if (deveLigar != buzzerLigado) {
     buzzerLigado = deveLigar;
     digitalWrite(BUZZER, buzzerLigado ? HIGH : LOW);
@@ -124,6 +146,7 @@ void atualizarSirene() {
 }
 
 void buzzerOff() {
+  // Reseta o ciclo da sirene e desliga o buzzer
   sireneInicioCicloMs = 0;
   buzzerLigado = false;
   digitalWrite(BUZZER, LOW);
@@ -131,9 +154,11 @@ void buzzerOff() {
 
 // ====== ESTADOS ======
 void setEstado(Estado novo) {
+  // Atualiza o estado geral do sistema
   estado = novo;
 
   if (estado == DESARMADO) {
+    // Sistema desarmado
     digitalWrite(LED_DESARMADO, HIGH);
     digitalWrite(LED_ARMADO, LOW);
     buzzerOff();
@@ -141,6 +166,7 @@ void setEstado(Estado novo) {
   }
 
   if (estado == SAIDA) {
+    // Contagem para saída antes de armar de fato
     digitalWrite(LED_DESARMADO, LOW);
     inicioSaidaMs = millis();
     ultimoPiscaMs = millis();
@@ -150,6 +176,7 @@ void setEstado(Estado novo) {
   }
 
   if (estado == ARMADO) {
+    // Sistema armado e pronto para detectar movimento
     digitalWrite(LED_DESARMADO, LOW);
     digitalWrite(LED_ARMADO, HIGH);
     buzzerOff();
@@ -157,20 +184,27 @@ void setEstado(Estado novo) {
   }
 
   if (estado == ALARME) {
+    // Sistema disparado
     digitalWrite(LED_DESARMADO, LOW);
     digitalWrite(LED_ARMADO, HIGH);
   }
 }
 
-void resetSequencia() { idx = 0; ultimoBotaoMs = 0; }
+void resetSequencia() { 
+  // Limpa a sequência digitada e o tempo da última tecla
+  idx = 0; 
+  ultimoBotaoMs = 0; 
+}
 
 void registrarBotao(int b) {
   unsigned long agora = millis();
 
+  // Se demorou demais entre teclas, reinicia a sequência
   if (ultimoBotaoMs != 0 && (agora - ultimoBotaoMs) > TIMEOUT_TECLAS_MS) {
     resetSequencia();
   }
 
+  // Armazena o botão pressionado
   seq[idx++] = b;
   ultimoBotaoMs = agora;
 
@@ -183,19 +217,23 @@ void registrarBotao(int b) {
     if (seq[0]==3 && seq[1]==2 && seq[2]==1) {
       setEstado(DESARMADO);
     }
+    // Após verificar, limpa a sequência
     resetSequencia();
   }
 }
 
 void lerBotoes() {
+  // Leitura dos botões com pequeno debounce
   if (digitalRead(B1) == LOW) { registrarBotao(1); delay(180); }
   if (digitalRead(B2) == LOW) { registrarBotao(2); delay(180); }
   if (digitalRead(B3) == LOW) { registrarBotao(3); delay(180); }
 }
 
 void setup() {
+  // Inicializa comunicação serial
   Serial.begin(115200);
 
+  // Configura os pinos
   pinMode(PIR, INPUT);
 
   pinMode(LED_ARMADO, OUTPUT);
@@ -206,6 +244,7 @@ void setup() {
   pinMode(B2, INPUT_PULLUP);
   pinMode(B3, INPUT_PULLUP);
 
+  // Inicia em estado desarmado
   setEstado(DESARMADO);
 
   // PIR estabiliza
