@@ -136,6 +136,77 @@ O projeto possui diferentes versões do código representando a evolução do si
 - comando **/status**
 
 ---
+## 🤖 Configuração do Bot do Telegram
+
+Para permitir o envio de notificações pelo ESP32 via Telegram, é necessário criar um bot e obter suas credenciais.
+
+### 🔧 Criando o bot
+
+1. No Telegram, pesquise por **BotFather**.
+2. Inicie a conversa e envie o comando:
+
+```text
+/start
+```
+
+3. Em seguida, envie o comando:
+
+```text
+/newbot
+```
+
+4. O BotFather pedirá duas informações:
+   - **Nome do bot**: pode ser qualquer nome
+   - **Username do bot**: deve ser único e terminar com `bot`
+
+Exemplo de username:
+
+```text
+meu_alarme_bot
+```
+
+5. Após a criação, o BotFather fornecerá um **Token** no seguinte formato:
+
+```text
+1234567890:AAAbbCCdddEEEEEff1GGhhIjKl23mNoPPqR
+```
+
+Esse token deverá ser inserido no código do ESP32.
+
+### 🔑 Obtendo o ID do usuário
+
+Para obter o ID que será usado no código:
+
+1. No Telegram, pesquise por **ID Bot**.
+2. Inicie a conversa e envie:
+
+```text
+/start
+```
+
+3. O bot retornará o seu **ID**, normalmente em um formato como este:
+
+```text
+1234567890
+```
+
+Esse número será utilizado no código como identificador do destinatário das mensagens.
+
+### 📌 Uso no código
+
+Depois de obter o Token e o ID, insira ambos no código do ESP32:
+
+```cpp
+String BOT_TOKEN = "SEU_TOKEN_AQUI";
+String CHAT_ID = "SEU_ID_AQUI";
+```
+
+### ⚠️ Observações
+
+- É necessário enviar `/start` para o bot criado antes de utilizá-lo no projeto.
+- O bot só conseguirá enviar mensagens para usuários que já iniciaram a conversa com ele.
+- Não compartilhe o token publicamente, pois ele dá acesso ao bot.
+---
 
 # 🚀 Como Reproduzir o Projeto
 
